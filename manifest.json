@@ -3,6 +3,7 @@
   "name": "AppFlowy Web Clip",
   "version": "1.0",
   "permissions": ["storage", "tabs"],
+  "host_permissions": ["https://beta.appflowy.cloud/*"],
   "background": {
     "service_worker": "service-worker.js"
   },
