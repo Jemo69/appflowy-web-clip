@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Custom Auth Ext",
+  "version": "1.0",
+  "permissions": ["storage", "tabs"],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.jpg"
+  }
+}

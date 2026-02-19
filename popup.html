@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app-container">
+    <!-- Auth Section -->
+    <div id="auth-container" class="card">
+      <h1>Welcome</h1>
+      <p>Sign in to your AppFlowy account to start clipping.</p>
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button id="login-btn">Sign In</button>
+      <p id="message" style="color: var(--google-red); margin-top: 10px; font-size: 12px;"></p>
+    </div>
+
+    <!-- Workspace Selection -->
+    <div id="workspace-container" class="card" style="display: none">
+      <div class="step-indicator">
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+      </div>
+      <h1>Workspace</h1>
+      <p>Choose the workspace where you want to save your clips.</p>
+      <span class="label">Select Workspace</span>
+      <select id="workspace-select">
+        <option value="">Choose a workspace...</option>
+      </select>
+    </div>
+
+    <!-- Space Selection -->
+    <div id="space-container" class="card" style="display: none">
+      <div class="step-indicator">
+        <div class="step-dot active"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+      </div>
+      <h1>Select Space</h1>
+      <p>Pick a folder or space for your new database.</p>
+      <span class="label">Destination Folder</span>
+      <select id="space-select">
+        <option value="">Choose a folder...</option>
+      </select>
+    </div>
+
+    <!-- Database Setup -->
+    <div id="category-container" class="card" style="display: none">
+      <div class="step-indicator">
+        <div class="step-dot active"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot active"></div>
+      </div>
+      <h1>Setup Database</h1>
+      <p>Customize your tasks database category and fields.</p>
+      
+      <span class="label">Category</span>
+      <select id="category-select">
+        <option value="personal">Personal</option>
+        <option value="blog">Blog</option>
+        <option value="education">Education</option>
+      </select>
+
+      <div style="margin: 20px 0;">
+        <span class="label">Database Fields</span>
+        <ul id="fields-list">
+          <li>Name <span>Title</span></li>
+          <li>URL <span>Link</span></li>
+        </ul>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="new-field-name" placeholder="Add field..." style="margin-bottom: 0;" />
+          <button id="add-field-btn" style="width: 60px; padding: 0;">+</button>
+        </div>
+      </div>
+
+      <button id="init-db-btn">Create Database</button>
+    </div>
+
+    <!-- Clipper Section -->
+    <div id="web-clipper" class="card" style="display: none">
+      <h1>Web Clipper</h1>
+      <p>Save the current page to AppFlowy.</p>
+      
+      <div style="background: #f5f5f7; padding: 12px; border-radius: 10px; margin-bottom: 16px;">
+        <span class="label" style="font-size: 10px;">Target Folder</span>
+        <div id="target-info" style="font-size: 12px; font-weight: 500;"></div>
+        <span class="label" style="font-size: 10px; margin-top: 8px;">Database ID</span>
+        <code id="database-id-display"></code>
+        <button id="copy-id-btn" style="background: none; color: var(--google-blue); padding: 4px 0; font-size: 11px; width: auto; font-weight: 600;">Copy ID</button>
+      </div>
+
+      <span class="label">URL</span>
+      <input type="text" id="web-clipper-input" placeholder="Enter URL" />
+      <button id="web-clipper-btn">Clip to AppFlowy</button>
+      
+      <button id="logout-btn">Sign Out</button>
+    </div>
+  </div>
+
+  <script src="utils.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
