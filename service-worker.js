@@ -2,6 +2,43 @@ chrome.runtime.onStartup.addListener(async () => {
   await checkTokenRefresh();
 });
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "FETCH_APPFLOWY") {
+    handleFetch(message.payload)
+      .then(data => sendResponse({ success: true, data }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true; // Keep channel open for async response
+  }
+});
+
+async function handleFetch({ endpoint, method, headers, body }) {
+  const url = endpoint.startsWith('http') ? endpoint : `https://beta.appflowy.cloud${endpoint}`;
+  
+  const options = {
+    method,
+    headers,
+  };
+
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+  
+  const response = await fetch(url, options);
+
+  let data;
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    data = await response.json();
+  } else {
+    data = { message: await response.text() };
+  }
+
+  if (!response.ok) {
+    throw new Error(data.message || `HTTP error! status: ${response.status}`);
+  }
+  return data;
+}
+
 async function checkTokenRefresh() {
   const { expireAt, refreshToken } = await chrome.storage.local.get([
     "expireAt",
@@ -10,16 +47,12 @@ async function checkTokenRefresh() {
 
   if (expireAt && new Date(expireAt) < new Date()) {
     try {
-      const response = await fetch(
-        "https://beta.appflowy.cloud/gotrue/token?grant_type=refresh_token",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refresh_token: refreshToken }),
-        },
-      );
-
-      const data = await response.json();
+      const data = await handleFetch({
+        endpoint: "/gotrue/token?grant_type=refresh_token",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: { refresh_token: refreshToken }
+      });
 
       if (data.access_token) {
         await chrome.storage.local.set({

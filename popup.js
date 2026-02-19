@@ -150,19 +150,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   loginBtn.addEventListener("click", async () => {
     loginBtn.disabled = true;
     loginBtn.textContent = "Logging in...";
-    loginBtn.classList.add("clicked");
     const email = emailInput.value;
     const password = passInput.value;
     try {
-      const response = await fetch(
-        "https://beta.appflowy.cloud/gotrue/token?grant_type=password",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        },
+      const data = await appFlowyApi(
+        "/gotrue/token?grant_type=password",
+        "POST",
+        { email, password }
       );
-      const data = await response.json();
       if (data.access_token) {
         await chrome.storage.local.set({
           authToken: data.access_token,
@@ -174,9 +169,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         updateUI();
       } else {
         alert("Login failed");
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Sign In";
       }
     } catch (err) {
       console.error("Auth Error:", err);
+      alert("Login failed: " + err.message);
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Sign In";
     }
   });
 
