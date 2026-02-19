@@ -2,7 +2,8 @@ async function appFlowyApi(endpoint, method = 'GET', body = null) {
   const { authToken } = await chrome.storage.local.get("authToken");
   
   const headers = {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   };
 
   if (authToken && !endpoint.includes('gotrue/token')) {

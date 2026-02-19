@@ -148,11 +148,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Event Handlers
   loginBtn.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    const password = passInput.value.trim();
+
+    if (!email || !password) {
+      alert("Please enter both email and password");
+      return;
+    }
+
     loginBtn.disabled = true;
     loginBtn.textContent = "Logging in...";
-    const email = emailInput.value;
-    const password = passInput.value;
+    
     try {
+
       const data = await appFlowyApi(
         "/gotrue/token?grant_type=password",
         "POST",

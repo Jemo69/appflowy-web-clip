@@ -23,6 +23,7 @@ async function handleFetch({ endpoint, method, headers, body }) {
     options.body = JSON.stringify(body);
   }
   
+  console.log(`Fetching: ${method} ${url}`);
   const response = await fetch(url, options);
 
   let data;
@@ -30,11 +31,14 @@ async function handleFetch({ endpoint, method, headers, body }) {
   if (contentType && contentType.includes("application/json")) {
     data = await response.json();
   } else {
-    data = { message: await response.text() };
+    const text = await response.text();
+    data = { message: text };
   }
 
   if (!response.ok) {
-    throw new Error(data.message || `HTTP error! status: ${response.status}`);
+    const errorMsg = data.error_description || data.error || data.message || `HTTP error! status: ${response.status}`;
+    console.error(`API Error: ${response.status} - ${errorMsg}`, data);
+    throw new Error(errorMsg);
   }
   return data;
 }
