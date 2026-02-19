@@ -149,6 +149,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Event Handlers
   loginBtn.addEventListener("click", async () => {
     loginBtn.disabled = true;
+    loginBtn.textContent = "Logging in...";
+    loginBtn.classList.add("clicked");
     const email = emailInput.value;
     const password = passInput.value;
     try {
