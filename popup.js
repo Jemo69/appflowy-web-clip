@@ -102,12 +102,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       const response = await appFlowyApi("/api/workspace");
       const workspaces = response.data || response;
       workspaceSelect.innerHTML =
-        '<option value="">Select a workspace</option>';
+        '<option value="">CHOOSE A WORKSPACE...</option>';
       if (Array.isArray(workspaces)) {
         workspaces.forEach((ws) => {
           const opt = document.createElement("option");
           opt.value = ws.workspace_id;
-          opt.textContent = ws.name;
+          opt.textContent = ws.name.toUpperCase();
           workspaceSelect.appendChild(opt);
         });
       }
@@ -126,7 +126,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       spaceSelect.innerHTML =
         '<option value="">CHOOSE A SPACE...</option>';
 
-      const items = folderData.items || (Array.isArray(folderData) ? folderData : []);
+      // According to documentation, spaces are top-level items in the folder structure
+      // with is_space: true. They are typically found in the .children or .items array.
+      const items = folderData.children || folderData.items || (Array.isArray(folderData) ? folderData : []);
 
       items.forEach((item) => {
         if (item.is_space) {
@@ -246,6 +248,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (workspaceSelect.value) {
       await chrome.storage.local.set({
         selectedWorkspaceId: workspaceSelect.value,
+        selectedSpaceId: null,
+        selectedDatabaseId: null
       });
       updateUI();
     }
@@ -253,7 +257,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   spaceSelect.addEventListener("change", async () => {
     if (spaceSelect.value) {
-      await chrome.storage.local.set({ selectedSpaceId: spaceSelect.value });
+      await chrome.storage.local.set({
+        selectedSpaceId: spaceSelect.value,
+        selectedDatabaseId: null
+      });
       updateUI();
     }
   });
