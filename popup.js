@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const logoutBtn = document.getElementById("logout-btn");
   const emailInput = document.getElementById("email");
   const passInput = document.getElementById("password");
+  const messageEl = document.getElementById("message");
 
   const workspaceSelect = document.getElementById("workspace-select");
   const spaceSelect = document.getElementById("space-select");
@@ -152,12 +153,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const password = passInput.value.trim();
 
     if (!email || !password) {
-      alert("Please enter both email and password");
+      showMessage("Please enter both email and password.", "error");
       return;
     }
 
     loginBtn.disabled = true;
-    loginBtn.textContent = "Logging in...";
+    loginBtn.textContent = "LOGGING IN...";
     
     try {
 
@@ -174,17 +175,18 @@ document.addEventListener("DOMContentLoaded", async () => {
           expireIn: data.expires_in,
           expireAt: new Date(Date.now() + data.expires_in * 1000).toISOString(),
         });
+        showMessage("Login successful.", "success");
         updateUI();
       } else {
-        alert("Login failed");
+        showMessage("Login failed.", "error");
         loginBtn.disabled = false;
-        loginBtn.textContent = "Sign In";
+        loginBtn.textContent = "SIGN IN";
       }
     } catch (err) {
       console.error("Auth Error:", err);
-      alert("Login failed: " + err.message);
+      showMessage("Login failed: " + err.message, "error");
       loginBtn.disabled = false;
-      loginBtn.textContent = "Sign In";
+      loginBtn.textContent = "SIGN IN";
     }
   });
 
@@ -252,12 +254,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           } catch (e) {}
         }
         await chrome.storage.local.set({ selectedDatabaseId: databaseId });
-        alert(`Database "${dbName}" created!`);
+        showMessage(`Database created successfully.`, "success");
         updateUI();
       }
     } catch (err) {
       console.error("Init DB Error:", err);
-      alert("Failed to initialize database. Ensure you have permissions.");
+      showMessage("Database creation failed.", "error");
     }
   });
 
@@ -278,16 +280,25 @@ document.addEventListener("DOMContentLoaded", async () => {
           },
         },
       );
-      alert("Clipped!");
+      showMessage("Page clipped to AppFlowy.", "success");
     } catch (err) {
-      alert("Clip failed: " + err.message);
+      showMessage("Clip failed: " + err.message, "error");
     }
   });
+
+  function showMessage(text, type) {
+    messageEl.textContent = text;
+    messageEl.className = type;
+    messageEl.style.display = "block";
+    setTimeout(() => {
+      messageEl.style.display = "none";
+    }, 3000);
+  }
 
   copyIdBtn.addEventListener("click", () => {
     navigator.clipboard.writeText(databaseIdDisplay.textContent);
     const originalText = copyIdBtn.textContent;
-    copyIdBtn.textContent = "Copied!";
+    copyIdBtn.textContent = "COPIED!";
     setTimeout(() => (copyIdBtn.textContent = originalText), 1500);
   });
 

@@ -1,176 +1,280 @@
 :root {
-  --apple-bg: #ffffff;
-  --google-blue: #4285f4;
-  --google-red: #ea4335;
-  --google-yellow: #fbbc05;
-  --google-green: #34a853;
-  --text-primary: #1d1d1f;
-  --text-secondary: #86868b;
-  --border-radius: 12px;
-  --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  --button-hover: #357ae8;
-  --glass: rgba(255, 255, 255, 0.8);
+  --onyx: #000000;
+  --stark-white: #ffffff;
+  --utility-gray: #1a1a1a;
+  --border-thick: 2.5px;
+  --radius-md: 10px;
+  --font-heavy: "Inter", "Roboto", "Segoe UI", sans-serif;
 }
 
 body {
-  width: 320px;
+  width: 340px;
   margin: 0;
   padding: 0;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
-  background-color: #f5f5f7;
-  color: var(--text-primary);
+  font-family: var(--font-heavy);
+  background-color: var(--onyx);
+  color: var(--stark-white);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 #app-container {
-  padding: 20px;
+  padding: 32px 20px;
+}
+
+/* Branding Plaque */
+.brand-plaque {
+  background: var(--stark-white);
+  color: var(--onyx);
+  padding: 8px 16px;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 2px;
+  display: inline-block;
+  margin-bottom: 24px;
+  border: var(--border-thick) solid var(--onyx);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 var(--border-thick) var(--stark-white);
 }
 
 h1 {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 900;
   margin: 0 0 16px 0;
-  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  line-height: 1;
 }
 
 p {
   font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.4;
-  margin: 0 0 20px 0;
+  color: var(--stark-white);
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+  opacity: 0.8;
 }
 
-/* Card Style (Google influence) */
+/* Tactical Monolith - Card */
 .card {
-  background: var(--apple-bg);
-  border-radius: var(--border-radius);
+  background: var(--onyx);
+  border: var(--border-thick) solid var(--stark-white);
+  border-radius: var(--radius-md);
   padding: 16px;
-  box-shadow: var(--shadow);
-  margin-bottom: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  transition:
-    opacity 0.3s ease-in-out,
-    transform 0.3s ease-in-out;
+  margin-bottom: 24px;
+  position: relative;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
 }
 
-/* Inputs (Apple minimalism) */
+.card-header {
+  background: var(--stark-white);
+  color: var(--onyx);
+  margin: -16px -16px 16px -16px;
+  padding: 8px 16px;
+  font-weight: 900;
+  font-size: 10px;
+  letter-spacing: 2px;
+  border-bottom: var(--border-thick) solid var(--stark-white);
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--stark-white);
+  margin-bottom: 8px;
+  display: block;
+  letter-spacing: 1px;
+}
+
+/* Form Elements */
 input[type="email"],
 input[type="password"],
 input[type="text"],
 select {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  border: 1px solid #d2d2d7;
-  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+  background-color: var(--onyx);
+  border: var(--border-thick) solid var(--stark-white);
+  border-radius: var(--radius-md);
+  color: var(--stark-white);
+  font-family: var(--font-heavy);
   font-size: 14px;
+  font-weight: 600;
   box-sizing: border-box;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
-  background-color: #fff;
+  transition: all 0.2s;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  font-size: 10px;
 }
 
 input:focus,
 select:focus {
   outline: none;
-  border-color: var(--google-blue);
-  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+  background-color: var(--stark-white);
+  color: var(--onyx);
 }
 
-/* Buttons (Google Blue + Apple Corners) */
+/* Buttons */
 button {
   width: 100%;
-  padding: 12px;
-  background-color: var(--google-blue);
-  color: white;
-  border: none;
-  border-radius: 20px; /* Pill shape - very Apple/Google modern */
-  font-size: 15px;
-  font-weight: 500;
+  padding: 14px;
+  background-color: var(--onyx);
+  color: var(--stark-white);
+  border: var(--border-thick) solid var(--stark-white);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
-  transition:
-    transform 0.1s,
-    background-color 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 button:hover {
-  background-color: var(--button-hover);
+  background-color: var(--stark-white);
+  color: var(--onyx);
 }
 
 button:active {
-  transform: scale(0.98);
+  transform: translateY(2px);
 }
 
-button#logout-btn {
-  background-color: transparent;
-  color: var(--google-red);
-  margin-top: 10px;
-  border: 1px solid rgba(234, 67, 53, 0.2);
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-button#logout-btn:hover {
-  background-color: rgba(234, 67, 53, 0.05);
+/* Secondary Button Taxonomy */
+button.secondary {
+  background-color: var(--stark-white);
+  color: var(--onyx);
+  border: var(--border-thick) solid var(--onyx);
+  box-shadow: 0 0 0 2px var(--stark-white);
+  margin-top: 12px;
+}
+
+button.secondary:hover {
+  background-color: var(--onyx);
+  color: var(--stark-white);
+  border-color: var(--stark-white);
+}
+
+/* Info Tiles */
+.info-tile {
+  background: var(--utility-gray);
+  border: var(--border-thick) solid var(--stark-white);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.info-tile .value {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+code {
+  background: var(--onyx);
+  border: 1px solid var(--stark-white);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-family: "SF Mono", monospace;
+  font-size: 10px;
+  display: block;
+  margin-bottom: 12px;
+  word-break: break-all;
+}
+
+/* Progress Step Dots */
+.step-indicator {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.step-dot {
+  height: 6px;
+  flex: 1;
+  background: var(--utility-gray);
+  border: 1px solid var(--stark-white);
+  border-radius: 3px;
+}
+
+.step-dot.active {
+  background: var(--stark-white);
 }
 
 /* Field list */
 #fields-list {
   list-style: none;
   padding: 0;
-  margin: 0 0 12px 0;
+  margin: 0 0 16px 0;
 }
 
 #fields-list li {
-  padding: 8px 12px;
-  background: #f5f5f7;
-  border-radius: 8px;
-  margin-bottom: 4px;
-  font-size: 13px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-/* Target info code block */
-code {
-  background: #f5f5f7;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-family: "SF Mono", "Roboto Mono", monospace;
-  font-size: 11px;
-  color: var(--google-blue);
-  display: block;
-  margin-top: 4px;
-}
-
-.label {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-  display: block;
 }
 
-/* Progress states */
-.step-indicator {
+#fields-list li span {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.add-field-row {
   display: flex;
-  gap: 4px;
-  margin-bottom: 20px;
+  gap: 10px;
 }
 
-.step-dot {
-  height: 4px;
-  flex: 1;
-  background: #d2d2d7;
-  border-radius: 2px;
+.add-field-row input {
+  margin-bottom: 0;
 }
 
-.step-dot.active {
-  background: var(--google-blue);
+.add-field-row button {
+  width: 60px;
 }
-.clicked {
-  color: var(--google-red);
+
+/* Messages / Toasts */
+#message {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  background: var(--onyx);
+  color: var(--stark-white);
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: var(--border-thick) solid var(--stark-white);
+  text-align: center;
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 1px;
+  z-index: 1000;
+  animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+#message.error {
+  border-color: var(--onyx);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
