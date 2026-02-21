@@ -55,37 +55,44 @@
       </select>
     </div>
 
-    <!-- Database Setup -->
-    <div id="category-container" class="card" style="display: none">
-      <div class="card-header">DATABASE_INIT</div>
+    <!-- Database Selection -->
+    <div id="database-container" class="card" style="display: none">
+      <div class="card-header">DATABASE_SELECT</div>
       <div class="step-indicator">
         <div class="step-dot active"></div>
         <div class="step-dot active"></div>
         <div class="step-dot active"></div>
       </div>
-      <h1>SETUP DATABASE</h1>
-      <p>Customize your tasks database category and fields.</p>
+      <h1>SELECT DATABASE</h1>
+      <p>Choose an existing database to save your clips.</p>
       
-      <span class="label">CATEGORY</span>
-      <select id="category-select">
-        <option value="personal">PERSONAL</option>
-        <option value="blog">BLOG</option>
-        <option value="education">EDUCATION</option>
+      <span class="label">DATABASE</span>
+      <select id="database-select">
+        <option value="">CHOOSE A DATABASE...</option>
       </select>
 
-      <div class="fields-section">
-        <span class="label">DATABASE FIELDS</span>
+      <div class="fields-section" id="fields-preview" style="display: none;">
+        <span class="label">EXTRACTED FIELDS</span>
         <ul id="fields-list">
-          <li>NAME <span>TITLE</span></li>
-          <li>URL <span>LINK</span></li>
+          <!-- Populated dynamically -->
         </ul>
-        <div class="add-field-row">
-          <input type="text" id="new-field-name" placeholder="ADD FIELD..." />
-          <button id="add-field-btn">+</button>
-        </div>
       </div>
 
-      <button id="init-db-btn">CREATE DATABASE</button>
+      <button id="confirm-db-btn" style="display: none;">CONFIRM SELECTION</button>
+      <button id="show-create-db-btn" class="secondary">CREATE NEW DATABASE</button>
+    </div>
+
+    <!-- Database Creation -->
+    <div id="create-database-container" class="card" style="display: none">
+      <div class="card-header">DATABASE_CREATE</div>
+      <h1>NEW DATABASE</h1>
+      <p>Create a new database for your clips.</p>
+
+      <span class="label">DATABASE NAME</span>
+      <input type="text" id="new-db-name" placeholder="ENTER NAME" />
+
+      <button id="init-db-btn">CREATE & SELECT</button>
+      <button id="back-to-select-db-btn" class="secondary">BACK TO SELECTION</button>
     </div>
 
     <!-- Clipper Section -->

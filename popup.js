@@ -3,7 +3,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const authContainer = document.getElementById("auth-container");
   const workspaceContainer = document.getElementById("workspace-container");
   const spaceContainer = document.getElementById("space-container");
-  const categoryContainer = document.getElementById("category-container");
+  const databaseContainer = document.getElementById("database-container");
+  const createDatabaseContainer = document.getElementById("create-database-container");
   const webClipper = document.getElementById("web-clipper");
 
   const loginBtn = document.getElementById("login-btn");
@@ -14,11 +15,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const workspaceSelect = document.getElementById("workspace-select");
   const spaceSelect = document.getElementById("space-select");
-  const categorySelect = document.getElementById("category-select");
-  const initDbBtn = document.getElementById("init-db-btn");
-  const addFieldBtn = document.getElementById("add-field-btn");
-  const newFieldNameInput = document.getElementById("new-field-name");
+  const databaseSelect = document.getElementById("database-select");
+  const fieldsPreview = document.getElementById("fields-preview");
   const fieldsList = document.getElementById("fields-list");
+  const confirmDbBtn = document.getElementById("confirm-db-btn");
+  const showCreateDbBtn = document.getElementById("show-create-db-btn");
+  const initDbBtn = document.getElementById("init-db-btn");
+  const backToSelectDbBtn = document.getElementById("back-to-select-db-btn");
+  const newDbNameInput = document.getElementById("new-db-name");
 
   const webClipInput = document.getElementById("web-clipper-input");
   const webClipperBtn = document.getElementById("web-clipper-btn");
@@ -46,7 +50,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       authContainer,
       workspaceContainer,
       spaceContainer,
-      categoryContainer,
+      databaseContainer,
+      createDatabaseContainer,
       webClipper,
     ];
 
@@ -69,7 +74,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         active = spaceContainer;
         loadSpaces(selectedWorkspaceId);
       } else if (!selectedDatabaseId) {
-        active = categoryContainer;
+        active = databaseContainer;
+        loadDatabases(selectedWorkspaceId, selectedSpaceId);
       } else {
         active = webClipper;
         targetInfo.textContent = `WS: ${selectedWorkspaceId.substring(0, 5)}... Space: ${selectedSpaceId.substring(0, 5)}...`;
@@ -112,39 +118,85 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   async function loadSpaces(workspaceId) {
     try {
-      // Fetch folders/spaces in the workspace
       const response = await appFlowyApi(
-        `/api/workspace/${workspaceId}/folder?depth=2`,
+        `/api/workspace/${workspaceId}/folder?depth=1`,
       );
-      // The response is usually a tree structure. We'll flatten it or show top-level folders.
       const folderData = response.data || response;
 
       spaceSelect.innerHTML =
-        '<option value="">Select a space (folder)</option>';
+        '<option value="">CHOOSE A SPACE...</option>';
 
-      // Recursive helper to populate spaces
-      function populate(items, indent = "") {
-        if (!items) return;
-        items.forEach((item) => {
-          // Only show items that can act as containers (usually folders or views with children)
+      const items = folderData.items || (Array.isArray(folderData) ? folderData : []);
+
+      items.forEach((item) => {
+        if (item.is_space) {
           const opt = document.createElement("option");
           opt.value = item.view_id;
-          opt.textContent = indent + item.name;
+          opt.textContent = item.name.toUpperCase();
           spaceSelect.appendChild(opt);
-          if (item.children) {
-            populate(item.children, indent + "-- ");
-          }
-        });
-      }
-
-      if (folderData.items) {
-        populate(folderData.items);
-      } else if (Array.isArray(folderData)) {
-        populate(folderData);
-      }
+        }
+      });
     } catch (err) {
       console.error("Load Spaces Error:", err);
     }
+  }
+
+  async function loadDatabases(workspaceId, spaceId) {
+    try {
+      // Fetch all databases in workspace
+      const response = await appFlowyApi(`/api/workspace/${workspaceId}/database`);
+      const databases = response.data || response;
+
+      databaseSelect.innerHTML = '<option value="">CHOOSE A DATABASE...</option>';
+
+      if (Array.isArray(databases)) {
+        // Filter databases that belong to the selected space
+        const filtered = databases.filter(db => db.parent_view_id === spaceId);
+
+        filtered.forEach(db => {
+          const opt = document.createElement("option");
+          opt.value = db.database_id || db.id;
+          opt.textContent = db.name.toUpperCase();
+          databaseSelect.appendChild(opt);
+        });
+      }
+    } catch (err) {
+      console.error("Load Databases Error:", err);
+    }
+  }
+
+  async function loadDatabaseFields(workspaceId, databaseId) {
+    try {
+      const response = await appFlowyApi(`/api/workspace/${workspaceId}/database/${databaseId}/fields`);
+      const fields = response.data || response;
+
+      fieldsList.innerHTML = "";
+      if (Array.isArray(fields)) {
+        fields.forEach(field => {
+          const li = document.createElement("li");
+          li.innerHTML = `${field.name.toUpperCase()} <span>${getFieldTypeName(field.field_type)}</span>`;
+          fieldsList.appendChild(li);
+        });
+        fieldsPreview.style.display = "block";
+        confirmDbBtn.style.display = "block";
+      }
+    } catch (err) {
+      console.error("Load Fields Error:", err);
+    }
+  }
+
+  function getFieldTypeName(type) {
+    const types = {
+      0: "TEXT",
+      1: "NUMBER",
+      2: "SELECT",
+      3: "MULTI-SELECT",
+      4: "DATE",
+      5: "CHECKBOX",
+      6: "URL",
+      10: "RELATION"
+    };
+    return types[type] || "UNKNOWN";
   }
 
   // Event Handlers
@@ -206,19 +258,42 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  addFieldBtn.addEventListener("click", () => {
-    const fieldName = newFieldNameInput.value.trim();
-    if (fieldName && !customFields.includes(fieldName)) {
-      customFields.push(fieldName);
-      const li = document.createElement("li");
-      li.textContent = fieldName;
-      fieldsList.appendChild(li);
-      newFieldNameInput.value = "";
+  databaseSelect.addEventListener("change", async () => {
+    if (databaseSelect.value) {
+      const { selectedWorkspaceId } = await chrome.storage.local.get("selectedWorkspaceId");
+      loadDatabaseFields(selectedWorkspaceId, databaseSelect.value);
+    } else {
+      fieldsPreview.style.display = "none";
+      confirmDbBtn.style.display = "none";
     }
   });
 
+  confirmDbBtn.addEventListener("click", async () => {
+    if (databaseSelect.value) {
+      await chrome.storage.local.set({ selectedDatabaseId: databaseSelect.value });
+      updateUI();
+    }
+  });
+
+  showCreateDbBtn.addEventListener("click", () => {
+    databaseContainer.style.display = "none";
+    createDatabaseContainer.style.display = "block";
+    createDatabaseContainer.style.opacity = "1";
+  });
+
+  backToSelectDbBtn.addEventListener("click", () => {
+    createDatabaseContainer.style.display = "none";
+    databaseContainer.style.display = "block";
+    databaseContainer.style.opacity = "1";
+  });
+
   initDbBtn.addEventListener("click", async () => {
-    const category = categorySelect.value;
+    const dbName = newDbNameInput.value.trim();
+    if (!dbName) {
+      showMessage("Please enter a database name.", "error");
+      return;
+    }
+
     const { selectedWorkspaceId, selectedSpaceId } =
       await chrome.storage.local.get([
         "selectedWorkspaceId",
@@ -226,33 +301,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       ]);
 
     try {
-      const dbName = `Tasks (${category})`;
-      // Create Database inside the selected space (parent_view_id)
       const createResponse = await appFlowyApi(
         `/api/workspace/${selectedWorkspaceId}/database`,
         "POST",
         {
           name: dbName,
           layout_type: 0,
-          parent_view_id: selectedSpaceId, // Pass selected space as parent
+          parent_view_id: selectedSpaceId,
         },
       );
 
       const databaseId = createResponse.database_id || createResponse.id;
       if (databaseId) {
-        // Create custom fields
-        for (const fieldName of customFields) {
-          try {
-            await appFlowyApi(
-              `/api/workspace/${selectedWorkspaceId}/database/${databaseId}/field`,
-              "POST",
-              {
-                name: fieldName,
-                field_type: 0,
-              },
-            );
-          } catch (e) {}
-        }
         await chrome.storage.local.set({ selectedDatabaseId: databaseId });
         showMessage(`Database created successfully.`, "success");
         updateUI();
@@ -269,16 +329,35 @@ document.addEventListener("DOMContentLoaded", async () => {
         "selectedWorkspaceId",
         "selectedDatabaseId",
       ]);
+
     try {
+      // Fetch fields to find the correct mapping
+      const fieldsResponse = await appFlowyApi(`/api/workspace/${selectedWorkspaceId}/database/${selectedDatabaseId}/fields`);
+      const fields = fieldsResponse.data || fieldsResponse;
+
+      const cells = {};
+
+      // Attempt to map to common field names
+      if (Array.isArray(fields)) {
+        fields.forEach(field => {
+          const name = field.name.toLowerCase();
+          if (name === "name" || name === "title") {
+            cells[field.name] = webClipInput.value;
+          } else if (name === "url" || name === "link") {
+            cells[field.name] = webClipInput.value;
+          }
+        });
+      }
+
+      // Fallback if no mapping found
+      if (Object.keys(cells).length === 0) {
+        cells["Name"] = webClipInput.value;
+      }
+
       await appFlowyApi(
         `/api/workspace/${selectedWorkspaceId}/database/${selectedDatabaseId}/row`,
         "POST",
-        {
-          cells: {
-            Name: webClipInput.value,
-            URL: webClipInput.value,
-          },
-        },
+        { cells },
       );
       showMessage("Page clipped to AppFlowy.", "success");
     } catch (err) {
