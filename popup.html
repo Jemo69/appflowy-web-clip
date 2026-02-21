@@ -7,96 +7,117 @@
 <body>
   <div id="app-container">
     <!-- Auth Section -->
+    <div class="brand-plaque">JEMO LIFE</div>
     <div id="auth-container" class="card">
-      <h1>Welcome</h1>
+      <div class="card-header">AUTH_CONTROL</div>
+      <h1>WELCOME</h1>
       <p>Sign in to your AppFlowy account to start clipping.</p>
-      <input type="email" id="email" placeholder="Email" required />
-      <input type="password" id="password" placeholder="Password" required />
-      <button id="login-btn">Sign In</button>
-      <p id="message" style="color: var(--google-red); margin-top: 10px; font-size: 12px;"></p>
+      <div class="input-group">
+        <span class="label">EMAIL</span>
+        <input type="email" id="email" placeholder="ENTER EMAIL" required />
+      </div>
+      <div class="input-group">
+        <span class="label">PASSWORD</span>
+        <input type="password" id="password" placeholder="ENTER PASSWORD" required />
+      </div>
+      <button id="login-btn">SIGN IN</button>
     </div>
 
     <!-- Workspace Selection -->
     <div id="workspace-container" class="card" style="display: none">
+      <div class="card-header">WORKSPACE_SELECT</div>
       <div class="step-indicator">
         <div class="step-dot active"></div>
         <div class="step-dot"></div>
         <div class="step-dot"></div>
       </div>
-      <h1>Workspace</h1>
+      <h1>WORKSPACE</h1>
       <p>Choose the workspace where you want to save your clips.</p>
-      <span class="label">Select Workspace</span>
+      <span class="label">SELECT WORKSPACE</span>
       <select id="workspace-select">
-        <option value="">Choose a workspace...</option>
+        <option value="">CHOOSE A WORKSPACE...</option>
       </select>
     </div>
 
     <!-- Space Selection -->
     <div id="space-container" class="card" style="display: none">
+      <div class="card-header">SPACE_CONFIG</div>
       <div class="step-indicator">
         <div class="step-dot active"></div>
         <div class="step-dot active"></div>
         <div class="step-dot"></div>
       </div>
-      <h1>Select Space</h1>
+      <h1>SELECT SPACE</h1>
       <p>Pick a folder or space for your new database.</p>
-      <span class="label">Destination Folder</span>
+      <span class="label">DESTINATION FOLDER</span>
       <select id="space-select">
-        <option value="">Choose a folder...</option>
+        <option value="">CHOOSE A SPACE...</option>
       </select>
     </div>
 
-    <!-- Database Setup -->
-    <div id="category-container" class="card" style="display: none">
+    <!-- Database Selection -->
+    <div id="database-container" class="card" style="display: none">
+      <div class="card-header">DATABASE_SELECT</div>
       <div class="step-indicator">
         <div class="step-dot active"></div>
         <div class="step-dot active"></div>
         <div class="step-dot active"></div>
       </div>
-      <h1>Setup Database</h1>
-      <p>Customize your tasks database category and fields.</p>
+      <h1>SELECT DATABASE</h1>
+      <p>Choose an existing database to save your clips.</p>
       
-      <span class="label">Category</span>
-      <select id="category-select">
-        <option value="personal">Personal</option>
-        <option value="blog">Blog</option>
-        <option value="education">Education</option>
+      <span class="label">DATABASE</span>
+      <select id="database-select">
+        <option value="">CHOOSE A DATABASE...</option>
       </select>
 
-      <div style="margin: 20px 0;">
-        <span class="label">Database Fields</span>
+      <div class="fields-section" id="fields-preview" style="display: none;">
+        <span class="label">EXTRACTED FIELDS</span>
         <ul id="fields-list">
-          <li>Name <span>Title</span></li>
-          <li>URL <span>Link</span></li>
+          <!-- Populated dynamically -->
         </ul>
-        <div style="display: flex; gap: 8px;">
-          <input type="text" id="new-field-name" placeholder="Add field..." style="margin-bottom: 0;" />
-          <button id="add-field-btn" style="width: 60px; padding: 0;">+</button>
-        </div>
       </div>
 
-      <button id="init-db-btn">Create Database</button>
+      <button id="confirm-db-btn" style="display: none;">CONFIRM SELECTION</button>
+      <button id="show-create-db-btn" class="secondary">CREATE NEW DATABASE</button>
+    </div>
+
+    <!-- Database Creation -->
+    <div id="create-database-container" class="card" style="display: none">
+      <div class="card-header">DATABASE_CREATE</div>
+      <h1>NEW DATABASE</h1>
+      <p>Create a new database for your clips.</p>
+
+      <span class="label">DATABASE NAME</span>
+      <input type="text" id="new-db-name" placeholder="ENTER NAME" />
+
+      <button id="init-db-btn">CREATE & SELECT</button>
+      <button id="back-to-select-db-btn" class="secondary">BACK TO SELECTION</button>
     </div>
 
     <!-- Clipper Section -->
     <div id="web-clipper" class="card" style="display: none">
-      <h1>Web Clipper</h1>
+      <div class="card-header">COMMAND_CENTER</div>
+      <h1>WEB CLIPPER</h1>
       <p>Save the current page to AppFlowy.</p>
       
-      <div style="background: #f5f5f7; padding: 12px; border-radius: 10px; margin-bottom: 16px;">
-        <span class="label" style="font-size: 10px;">Target Folder</span>
-        <div id="target-info" style="font-size: 12px; font-weight: 500;"></div>
-        <span class="label" style="font-size: 10px; margin-top: 8px;">Database ID</span>
+      <div class="info-tile">
+        <span class="label">TARGET FOLDER</span>
+        <div id="target-info" class="value"></div>
+        <span class="label">DATABASE ID</span>
         <code id="database-id-display"></code>
-        <button id="copy-id-btn" style="background: none; color: var(--google-blue); padding: 4px 0; font-size: 11px; width: auto; font-weight: 600;">Copy ID</button>
+        <button id="copy-id-btn" class="secondary">COPY ID</button>
       </div>
 
       <span class="label">URL</span>
-      <input type="text" id="web-clipper-input" placeholder="Enter URL" />
-      <button id="web-clipper-btn">Clip to AppFlowy</button>
+      <input type="text" id="web-clipper-input" placeholder="ENTER URL" />
+      <button id="web-clipper-btn">CLIP TO APPFLOWY</button>
       
-      <button id="logout-btn">Sign Out</button>
+      <button id="logout-btn" class="secondary">SIGN OUT</button>
     </div>
+
+    <!-- Feedback Layer -->
+    <p id="message"></p>
   </div>
 
   <script src="utils.js"></script>
