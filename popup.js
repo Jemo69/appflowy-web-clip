@@ -36,15 +36,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function updateUI() {
     const {
       authToken,
+      expireAt,
       selectedWorkspaceId,
       selectedSpaceId,
       selectedDatabaseId,
     } = await chrome.storage.local.get([
       "authToken",
+      "expireAt",
       "selectedWorkspaceId",
       "selectedSpaceId",
       "selectedDatabaseId",
     ]);
+
+    // Check if token is expired and needs re-login
+    if (authToken && expireAt && new Date(expireAt) < new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+        // If token is very old (e.g. 7 days past expiry), just clear it
+        await chrome.storage.local.clear();
+        location.reload();
+        return;
+    }
 
     const containers = [
       authContainer,
@@ -100,19 +110,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function loadWorkspaces() {
     try {
       const response = await appFlowyApi("/api/workspace");
-      const workspaces = response.data || response;
+      const workspaces = response?.data || response;
       workspaceSelect.innerHTML =
         '<option value="">CHOOSE A WORKSPACE...</option>';
-      if (Array.isArray(workspaces)) {
-        workspaces.forEach((ws) => {
-          const opt = document.createElement("option");
-          opt.value = ws.workspace_id;
-          opt.textContent = ws.name.toUpperCase();
-          workspaceSelect.appendChild(opt);
+
+      const list = Array.isArray(workspaces) ? workspaces :
+                   (workspaces?.items && Array.isArray(workspaces.items) ? workspaces.items :
+                   (workspaces?.workspaces && Array.isArray(workspaces.workspaces) ? workspaces.workspaces : []));
+
+      if (list.length > 0) {
+        list.forEach((ws) => {
+          if (ws.workspace_id && ws.name) {
+            const opt = document.createElement("option");
+            opt.value = ws.workspace_id;
+            opt.textContent = ws.name.toUpperCase();
+            workspaceSelect.appendChild(opt);
+          }
         });
+      } else {
+        showMessage("No workspaces found.", "error");
       }
     } catch (err) {
       console.error("Load Workspaces Error:", err);
+      showMessage("Failed to load workspaces: " + err.message, "error");
     }
   }
 
@@ -121,25 +141,32 @@ document.addEventListener("DOMContentLoaded", async () => {
       const response = await appFlowyApi(
         `/api/workspace/${workspaceId}/folder?depth=1`,
       );
-      const folderData = response.data || response;
+      const folderData = response?.data || response;
 
       spaceSelect.innerHTML =
         '<option value="">CHOOSE A SPACE...</option>';
 
       // According to documentation, spaces are top-level items in the folder structure
       // with is_space: true. They are typically found in the .children or .items array.
-      const items = folderData.children || folderData.items || (Array.isArray(folderData) ? folderData : []);
+      const items = folderData?.children || folderData?.items || folderData?.data || (Array.isArray(folderData) ? folderData : []);
 
+      let spaceCount = 0;
       items.forEach((item) => {
         if (item.is_space) {
           const opt = document.createElement("option");
           opt.value = item.view_id;
-          opt.textContent = item.name.toUpperCase();
+          opt.textContent = (item.name || "UNNAMED SPACE").toUpperCase();
           spaceSelect.appendChild(opt);
+          spaceCount++;
         }
       });
+
+      if (spaceCount === 0) {
+        showMessage("No spaces found in this workspace.", "error");
+      }
     } catch (err) {
       console.error("Load Spaces Error:", err);
+      showMessage("Failed to load spaces: " + err.message, "error");
     }
   }
 
@@ -147,43 +174,63 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       // Fetch all databases in workspace
       const response = await appFlowyApi(`/api/workspace/${workspaceId}/database`);
-      const databases = response.data || response;
+      const databases = response?.data || response;
 
       databaseSelect.innerHTML = '<option value="">CHOOSE A DATABASE...</option>';
 
-      if (Array.isArray(databases)) {
+      const list = Array.isArray(databases) ? databases :
+                   (databases?.items && Array.isArray(databases.items) ? databases.items :
+                   (databases?.data && Array.isArray(databases.data) ? databases.data : []));
+
+      if (list.length > 0) {
         // Filter databases that belong to the selected space
-        const filtered = databases.filter(db => db.parent_view_id === spaceId);
+        const filtered = list.filter(db => db.parent_view_id === spaceId);
 
         filtered.forEach(db => {
-          const opt = document.createElement("option");
-          opt.value = db.database_id || db.id;
-          opt.textContent = db.name.toUpperCase();
-          databaseSelect.appendChild(opt);
+          const id = db.database_id || db.id;
+          if (id) {
+            const opt = document.createElement("option");
+            opt.value = id;
+            opt.textContent = (db.name || "UNNAMED DATABASE").toUpperCase();
+            databaseSelect.appendChild(opt);
+          }
         });
+
+        if (filtered.length === 0) {
+            showMessage("No databases found in this space.", "error");
+        }
+      } else {
+        showMessage("No databases found.", "error");
       }
     } catch (err) {
       console.error("Load Databases Error:", err);
+      showMessage("Failed to load databases: " + err.message, "error");
     }
   }
 
   async function loadDatabaseFields(workspaceId, databaseId) {
     try {
       const response = await appFlowyApi(`/api/workspace/${workspaceId}/database/${databaseId}/fields`);
-      const fields = response.data || response;
+      const fields = response?.data || response;
 
       fieldsList.innerHTML = "";
-      if (Array.isArray(fields)) {
-        fields.forEach(field => {
+      const list = Array.isArray(fields) ? fields :
+                   (fields?.items && Array.isArray(fields.items) ? fields.items : []);
+
+      if (list.length > 0) {
+        list.forEach(field => {
           const li = document.createElement("li");
-          li.innerHTML = `${field.name.toUpperCase()} <span>${getFieldTypeName(field.field_type)}</span>`;
+          li.innerHTML = `${(field.name || "UNNAMED FIELD").toUpperCase()} <span>${getFieldTypeName(field.field_type)}</span>`;
           fieldsList.appendChild(li);
         });
         fieldsPreview.style.display = "block";
         confirmDbBtn.style.display = "block";
+      } else {
+        showMessage("No fields found in this database.", "error");
       }
     } catch (err) {
       console.error("Load Fields Error:", err);
+      showMessage("Failed to load database fields: " + err.message, "error");
     }
   }
 

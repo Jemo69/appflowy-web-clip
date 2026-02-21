@@ -12,6 +12,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 async function handleFetch({ endpoint, method, headers, body }) {
+  if (!endpoint.includes('gotrue/token')) {
+    await checkTokenRefresh();
+    const { authToken } = await chrome.storage.local.get("authToken");
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+  }
+
   const url = endpoint.startsWith('http') ? endpoint : `https://beta.appflowy.cloud${endpoint}`;
   
   const options = {

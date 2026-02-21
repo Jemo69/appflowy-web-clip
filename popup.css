@@ -271,7 +271,7 @@ code {
 }
 
 #message.error {
-  border-color: var(--onyx);
+  border-color: #ea4335; /* Added a tactical red for errors while keeping black fill */
 }
 
 @keyframes slideUp {
